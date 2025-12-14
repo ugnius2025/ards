@@ -7,50 +7,55 @@ from bs4 import BeautifulSoup
 # CONFIG
 # -----------------------
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (experimental research)"
+    "User-Agent": "Mozilla/5.0",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
 }
 
 # -----------------------
 # SCRAPING FUNCTION
 # -----------------------
-@st.cache_data(ttl=300)
 def get_latest_vilnius_ads(limit=10):
     url = "https://www.aruodas.lt/butai/vilniuje/"
-
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-    }
-
-    r = requests.get(url, headers=headers, timeout=10)
-
+    r = requests.get(url, headers=HEADERS, timeout=10)
     if r.status_code != 200:
-        st.error(f"HTTP status: {r.status_code}")
         return []
 
     soup = BeautifulSoup(r.text, "html.parser")
 
-    cards = soup.select("div.list-row")
+    # Try a more general listing selector
+    items = soup.select(".list-card") or soup.select("article") or soup.find_all("h3")
 
     ads = []
-    for card in cards[:limit]:
-        title = card.select_one("h3")
-        price = card.select_one(".price")
-        link = card.select_one("a")
+    count = 0
+
+    for item in items:
+        # Stop once we reach the limit
+        if count >= limit:
+            break
+
+        # Try to get title-like text
+        text = item.get_text(separator=" ", strip=True)
+        if not text:
+            continue
+
+        # Try to find price inside this section
+        price_el = item.find_next(string=lambda t: "€" in t)
+
+        # Try to find link
+        link_el = item.find("a", href=True)
+        link = link_el["href"] if link_el else None
+        if link and link.startswith("/"):
+            link = "https://www.aruodas.lt" + link
 
         ads.append({
-            "title": title.get_text(strip=True) if title else "No title",
-            "price": price.get_text(strip=True) if price else "No price",
-            "link": (
-                "https://www.aruodas.lt" + link["href"]
-                if link and link.get("href", "").startswith("/")
-                else None
-            )
+            "title": text,
+            "price": price_el.strip() if price_el else "No price",
+            "link": link,
         })
+        count += 1
 
     return ads
-
 
 # -----------------------
 # STREAMLIT UI
