@@ -58,6 +58,8 @@ st.caption("Experimental, read-only, low-frequency scraping")
 with st.spinner("Loading latest listings…"):
     ads = get_latest_vilnius_ads(limit=10)
 
+st.write(ads)
+
 if not ads:
     st.error("No listings found or site unavailable.")
 else:
