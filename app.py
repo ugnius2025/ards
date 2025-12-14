@@ -16,33 +16,38 @@ HEADERS = {
 @st.cache_data(ttl=300)
 def get_latest_vilnius_ads(limit=10):
     url = "https://www.aruodas.lt/butai/vilniuje/"
-    r = requests.get(url, headers=HEADERS, timeout=10)
+
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+    }
+
+    r = requests.get(url, headers=headers, timeout=10)
 
     if r.status_code != 200:
+        st.error(f"HTTP status: {r.status_code}")
         return []
 
     soup = BeautifulSoup(r.text, "html.parser")
+
+    cards = soup.select("div.list-row")
+
     ads = []
-
-    for card in soup.select("div.list-row")[:limit]:
-        title_el = card.select_one("h3")
-        price_el = card.select_one(".price")
-        link_el = card.select_one("a")
-
-        title = title_el.get_text(strip=True) if title_el else "No title"
-        price = price_el.get_text(strip=True) if price_el else "No price"
-
-        link = (
-            "https://www.aruodas.lt" + link_el["href"]
-            if link_el and link_el.get("href", "").startswith("/")
-            else None
-        )
+    for card in cards[:limit]:
+        title = card.select_one("h3")
+        price = card.select_one(".price")
+        link = card.select_one("a")
 
         ads.append({
-            "Title": title,
-            "Price": price,
-            "Link": link
-        })
+            "title": title.get_text(strip=True) if title else "No title",
+            "price": price.get_text(strip=True) if price else "No price",
+            "link": (
+                "https://www.aruodas.lt" + link["href"]
+                if link and link.get("href", "").startswith("/")
+                else None
+            ),
+        )
 
     return ads
 
