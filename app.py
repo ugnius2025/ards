@@ -46,8 +46,8 @@ def get_latest_vilnius_ads(limit=10):
                 "https://www.aruodas.lt" + link["href"]
                 if link and link.get("href", "").startswith("/")
                 else None
-            ),
-        )
+            )
+        })
 
     return ads
 
