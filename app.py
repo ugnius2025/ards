@@ -29,3 +29,20 @@ if price and size:
         verdict = "🟡 Around market price"
 
     st.subheader(verdict)
+
+year = st.number_input("Year built", min_value=1900, max_value=2025, step=1)
+renovated = st.checkbox("Renovated")
+
+flags = []
+
+if year < 1960 and renovated:
+    flags.append("⚠ Old building + renovation — check quality")
+
+if diff < -0.25:
+    flags.append("⚠ Very cheap — verify documents & condition")
+
+if flags:
+    st.subheader("Risk flags")
+    for f in flags:
+        st.write(f)
+
