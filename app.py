@@ -16,7 +16,7 @@ HEADERS = {
 # SCRAPING FUNCTION
 # -----------------------
 def get_latest_vilnius_ads(limit=10):
-    url = "https://www.aruodas.lt/butai/vilniuje/"
+    url = "https://www.aruodas.lt/butai/vilniuje/?days=1"
     r = requests.get(url, headers=HEADERS, timeout=10)
     if r.status_code != 200:
         return []
