@@ -1,5 +1,6 @@
 import streamlit as st
 
+# PHASE 1 — Core inputs & basic intelligence (FOUNDATION)
 st.title("🏠 AI Real Estate Assistant (Experimental)")
 
 DISTRICT_AVG = {
@@ -30,7 +31,7 @@ if price and size:
 
     st.subheader(verdict)
 
-# Adds year and renovation details
+# PHASE 2 — Risk flags (RULE-BASED INTELLIGENCE)
 year = st.number_input("Year built", min_value=1900, max_value=2025, step=1)
 renovated = st.checkbox("Renovated")
 
@@ -46,4 +47,24 @@ if flags:
     st.subheader("Risk flags")
     for f in flags:
         st.write(f)
+
+# PHASE 3 — Text intelligence (NO LLM)
+description = st.text_area("Listing description (optional)")
+
+KEYWORDS = {
+    "urgent": -1,
+    "investment": +1,
+    "renovated": +1,
+    "needs renovation": -1,
+    "exclusive": +1,
+}
+
+score = 0
+for k, v in KEYWORDS.items():
+    if k in description.lower():
+        score += v
+
+if description:
+    st.subheader("Text signal score")
+    st.write(score)
 
