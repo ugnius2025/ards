@@ -68,3 +68,12 @@ if description:
     st.subheader("Text signal score")
     st.write(score)
 
+# PHASE 4 — Final verdict synthesis (AI-like)
+confidence = "Medium"
+
+if diff < -0.15 and score >= 1 and not flags:
+    confidence = "High"
+
+st.subheader(f"Overall confidence: {confidence}")
+
+
