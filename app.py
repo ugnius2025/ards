@@ -30,6 +30,7 @@ if price and size:
 
     st.subheader(verdict)
 
+# Adds year and renovation details
 year = st.number_input("Year built", min_value=1900, max_value=2025, step=1)
 renovated = st.checkbox("Renovated")
 
